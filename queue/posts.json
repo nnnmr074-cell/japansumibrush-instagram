@@ -1,0 +1,4 @@
+{
+  "_help": "status: draft (not posted) -> approved (will be posted at scheduled_at) -> posted / error. scheduled_at in Japan time (+09:00). media paths are relative to the repository root.",
+  "posts": []
+}

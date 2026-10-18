@@ -1,0 +1,35 @@
+name: Post to Instagram
+
+on:
+  schedule:
+    - cron: "7 * * * *"   # every hour at :07 (UTC). Posts go out at the first run after their scheduled time.
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish due posts
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: python3 scripts/post.py
+      - name: Save queue status
+        if: always()
+        run: |
+          if ! git diff --quiet queue/posts.json; then
+            git config user.name "instagram-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add queue/posts.json
+            git commit -m "queue: update post status"
+            git pull --rebase
+            git push
+          fi

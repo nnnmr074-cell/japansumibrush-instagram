@@ -1,0 +1,22 @@
+name: Refresh Instagram token
+
+on:
+  schedule:
+    - cron: "17 3 1,15 * *"   # 1st and 15th of each month (UTC). Token lasts 60 days; refreshing twice a month keeps it alive.
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pynacl
+      - name: Refresh and store new token
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: python3 scripts/refresh_token.py
